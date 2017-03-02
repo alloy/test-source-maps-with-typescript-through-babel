@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "jsx": "react-native",
+        "target": "es6",
+        "module": "commonjs",
+        "rootDir": ".",
+        "allowJs": true,
+        "inlineSourceMap": true,
+        "moduleResolution": "node",
+        "strictNullChecks": false
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}
