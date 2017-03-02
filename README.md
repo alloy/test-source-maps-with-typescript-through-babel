@@ -10,8 +10,6 @@ yarn test
 ## Result
 
 ```
-yarn test v0.21.3
-$ node index.js
 -----------------
 Original
 -----------------
