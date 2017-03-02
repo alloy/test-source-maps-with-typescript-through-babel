@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "test": "node index.js"
+  },
   "dependencies": {
     "babel-core": "^6.23.1",
     "typescript": "^2.2.1"
