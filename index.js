@@ -7,6 +7,14 @@ const babelConfig = JSON.parse(fs.readFileSync(path.resolve(__dirname, "./.babel
 const babelTransform = require("babel-core").transform
 const babelGenerate = require("babel-generator").default
 
+function mergeSourceMaps(inputSourceMap, outputSourceMap) {
+  // TODO: The `mergeSourceMap` function modifies the `mappings` of the `inputSourceMap`, so make a deep copy first as
+  //       to not mutate the original copy.
+  inputSourceMap = JSON.parse(JSON.stringify(inputSourceMap))
+  const File = require("babel-core/lib/transformation/file").File
+  return File.prototype.mergeSourceMap.apply({ opts: { inputSourceMap } }, [outputSourceMap])
+}
+
 const ts = require("typescript")
 const tsConfig = require("./tsconfig.json")
 
@@ -24,6 +32,9 @@ const generateResult = babelGenerate(transformResult.ast, {
   sourceMaps: true,
 }, source)
 
+// This is the fix, we need to translate the mappings in the generated source based on the TS->JS mappings.
+generateResult.map = mergeSourceMaps(transformResult.map, generateResult.map)
+
 const transformSourceMap = new SourceMapConsumer(transformResult.map)
 const generateSourceMap = new SourceMapConsumer(generateResult.map)
 
@@ -35,12 +46,17 @@ function compare(line, column) {
   })
 
   const generatedPosition = generateSourceMap.generatedPositionFor({
-    source: filename,
+    // source: filename,  // mergeSourceMap uses the filename from the input source map
+    source: path.basename(filename),
     line,
     column,
   })
 
   function codeAt(code, line, startColumn, numberOfColumns = 20) {
+    // TODO: Does or does a mapping not use 1-based indexing?
+    if (startColumn < 1) {
+      startColumn = 1
+    }
     return code.split("\n")[line-1].substring(startColumn-1, startColumn+numberOfColumns-1)
   }
 
